@@ -18,7 +18,7 @@ MAX_PASOS_HERRAMIENTAS = 6  # Evita bucles infinitos si el modelo se confunde
 
 class Cerebro:
     def __init__(self, al_usar_herramienta=None):
-        self.cliente = OpenAI(base_url=config.URL_API, api_key=config.API_KEY)
+        self.cliente = OpenAI(base_url=config.URL_API, api_key=config.API_KEY, timeout=20, max_retries=1)
         self.historial = []
         self.al_usar_herramienta = al_usar_herramienta  # Aviso opcional, ej: mostrar "[buscando...]"
 
@@ -64,18 +64,7 @@ class Cerebro:
                 return texto
 
             # El modelo pidió usar herramientas: las ejecutamos y le devolvemos los resultados
-            self.historial.append({
-                "role": "assistant",
-                "content": mensaje.content or "",
-                "tool_calls": [
-                    {
-                        "id": llamada.id,
-                        "type": "function",
-                        "function": {"name": llamada.function.name, "arguments": llamada.function.arguments},
-                    }
-                    for llamada in mensaje.tool_calls
-                ],
-            })
+            self.historial.append(mensaje.model_dump(exclude_none=True))
             for llamada in mensaje.tool_calls:
                 nombre = llamada.function.name
                 if self.al_usar_herramienta:

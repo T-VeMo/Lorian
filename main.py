@@ -50,6 +50,9 @@ def main():
             print(f"{nombre}: {cerebro.pensar(texto)}\n")
         except openai.RateLimitError:
             print("(Llegaste al límite gratuito por ahora. Espera un momento y vuelve a intentar.)\n")
+        except openai.APITimeoutError as e:
+            #print(type(e).__name__, e)
+            print(f"(Tiempo de espera agotado: {e})\n")
         except openai.APIConnectionError:
             print("(No hay conexión con el servicio de IA. Revisa tu internet.)\n")
         except openai.APIError as e:
