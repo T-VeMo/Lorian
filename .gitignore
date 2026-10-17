@@ -1,0 +1,19 @@
+# Secretos (tu API key)
+.env
+
+# Entorno virtual
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Datos locales del asistente (alarmas guardadas, memoria, etc.)
+datos/
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
