@@ -1,21 +1,24 @@
-"""El cerebro: conversa con Claude y ejecuta herramientas hasta tener una respuesta.
+"""El cerebro: conversa con el modelo de IA y ejecuta herramientas hasta tener una respuesta.
 
 No sabe nada de terminales, voz ni pantallas: recibe texto y devuelve texto.
-Así se puede reutilizar igual desde la terminal, la voz o una interfaz gráfica.
+Funciona con cualquier proveedor compatible con el formato de OpenAI (Groq, Gemini, Ollama...).
 """
 
+import json
 from datetime import datetime
 
-import anthropic
+from openai import OpenAI
 
 from asistente import config, herramientas
 
 DIAS = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
+MAX_MENSAJES = 30          # Historial máximo, para no gastar la cuota gratuita
+MAX_PASOS_HERRAMIENTAS = 6  # Evita bucles infinitos si el modelo se confunde
 
 
 class Cerebro:
     def __init__(self, al_usar_herramienta=None):
-        self.cliente = anthropic.Anthropic()
+        self.cliente = OpenAI(base_url=config.URL_API, api_key=config.API_KEY)
         self.historial = []
         self.al_usar_herramienta = al_usar_herramienta  # Aviso opcional, ej: mostrar "[buscando...]"
 
@@ -26,41 +29,67 @@ class Cerebro:
         ahora = datetime.now()
         return f"{config.PERSONALIDAD}\n\nAhora es {DIAS[ahora.weekday()]} {ahora:%d/%m/%Y, %H:%M}."
 
+    def _recortar_historial(self):
+        """Olvida lo más antiguo, cortando siempre al inicio de un mensaje del usuario."""
+        while len(self.historial) > MAX_MENSAJES:
+            self.historial.pop(0)
+            while self.historial and self.historial[0]["role"] != "user":
+                self.historial.pop(0)
+
     def pensar(self, texto):
         largo_previo = len(self.historial)
         self.historial.append({"role": "user", "content": texto})
         try:
-            return self._bucle()
+            respuesta = self._bucle()
         except Exception:
             del self.historial[largo_previo:]  # Deshace el turno fallido
             raise
+        self._recortar_historial()
+        return respuesta
 
     def _bucle(self):
-        while True:
-            respuesta = self.cliente.messages.create(
+        for _ in range(MAX_PASOS_HERRAMIENTAS):
+            respuesta = self.cliente.chat.completions.create(
                 model=config.MODELO,
-                max_tokens=1024,
-                system=self._instrucciones(),
+                messages=[{"role": "system", "content": self._instrucciones()}] + self.historial,
                 tools=herramientas.DEFINICIONES,
-                messages=self.historial,
+                tool_choice="auto",
+                max_tokens=1024,
             )
-            self.historial.append({"role": "assistant", "content": respuesta.content})
+            mensaje = respuesta.choices[0].message
 
-            if respuesta.stop_reason == "tool_use":
-                resultados = []
-                for bloque in respuesta.content:
-                    if bloque.type == "tool_use":
-                        if self.al_usar_herramienta:
-                            self.al_usar_herramienta(bloque.name)
-                        resultados.append({
-                            "type": "tool_result",
-                            "tool_use_id": bloque.id,
-                            "content": herramientas.ejecutar(bloque.name, bloque.input),
-                        })
-                self.historial.append({"role": "user", "content": resultados})
-                continue
+            if not mensaje.tool_calls:
+                texto = (mensaje.content or "").strip()
+                self.historial.append({"role": "assistant", "content": texto})
+                return texto
 
-            if respuesta.stop_reason == "pause_turn":
-                continue  # Búsqueda larga: se reenvía tal cual para que siga
+            # El modelo pidió usar herramientas: las ejecutamos y le devolvemos los resultados
+            self.historial.append({
+                "role": "assistant",
+                "content": mensaje.content or "",
+                "tool_calls": [
+                    {
+                        "id": llamada.id,
+                        "type": "function",
+                        "function": {"name": llamada.function.name, "arguments": llamada.function.arguments},
+                    }
+                    for llamada in mensaje.tool_calls
+                ],
+            })
+            for llamada in mensaje.tool_calls:
+                nombre = llamada.function.name
+                if self.al_usar_herramienta:
+                    self.al_usar_herramienta(nombre)
+                try:
+                    argumentos = json.loads(llamada.function.arguments or "{}")
+                except json.JSONDecodeError:
+                    argumentos = {}
+                self.historial.append({
+                    "role": "tool",
+                    "tool_call_id": llamada.id,
+                    "content": herramientas.ejecutar(nombre, argumentos),
+                })
 
-            return "".join(b.text for b in respuesta.content if b.type == "text").strip()
+        texto = "Perdón, me enredé intentando resolver eso. ¿Me lo pides de otra forma?"
+        self.historial.append({"role": "assistant", "content": texto})
+        return texto

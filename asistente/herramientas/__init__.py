@@ -2,17 +2,16 @@
 
 Para agregar una herramienta nueva:
   1. Crea un archivo en esta carpeta con sus funciones, DEFINICIONES y FUNCIONES
-     (usa alarmas.py como ejemplo).
-  2. Impórtala aquí y súmala a las dos listas de abajo.
+     (usa clima.py como ejemplo).
+  2. Agrégala a la lista MODULOS de abajo.
 """
 
-from . import alarmas, web
+from . import alarmas, clima, web
 
-DEFINICIONES = alarmas.DEFINICIONES + [web.definicion()]
+MODULOS = [alarmas, clima, web]
 
-FUNCIONES = {
-    **alarmas.FUNCIONES,
-}
+DEFINICIONES = [d for m in MODULOS for d in m.DEFINICIONES]
+FUNCIONES = {nombre: f for m in MODULOS for nombre, f in m.FUNCIONES.items()}
 
 
 def ejecutar(nombre, argumentos):

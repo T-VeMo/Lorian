@@ -1,10 +1,9 @@
 """Punto de entrada: interfaz de texto en la terminal."""
 
-import os
 import sys
 import time
 
-import anthropic
+import openai
 
 from asistente import config
 from asistente.cerebro import Cerebro
@@ -21,15 +20,15 @@ def sonar_alarma(mensaje, hora):
 
 
 def main():
-    if not os.getenv("ANTHROPIC_API_KEY"):
-        print("Falta ANTHROPIC_API_KEY. Copia .env.example como .env y pon tu key ahí.")
+    if not config.API_KEY:
+        print(f"Falta {config.VARIABLE_KEY}. Copia .env.example como .env y pon tu key ahí.")
         sys.exit(1)
 
     cerebro = Cerebro(al_usar_herramienta=lambda nombre: print(f"   [usando {nombre}...]"))
     alarmas.iniciar_vigilancia(sonar_alarma)
 
     nombre = config.NOMBRE
-    print(f"{nombre} en línea. Escribe 'salir' para terminar o 'nuevo' para empezar otra conversación.\n")
+    print(f"{nombre} en línea ({config.PROVEEDOR}: {config.MODELO}). Escribe 'salir' para terminar o 'nuevo' para empezar otra conversación.\n")
 
     while True:
         try:
@@ -49,7 +48,11 @@ def main():
 
         try:
             print(f"{nombre}: {cerebro.pensar(texto)}\n")
-        except anthropic.APIError as e:
+        except openai.RateLimitError:
+            print("(Llegaste al límite gratuito por ahora. Espera un momento y vuelve a intentar.)\n")
+        except openai.APIConnectionError:
+            print("(No hay conexión con el servicio de IA. Revisa tu internet.)\n")
+        except openai.APIError as e:
             print(f"(Error de la API: {e})\n")
 
     print(f"{nombre}: Hasta luego.")

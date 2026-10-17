@@ -1,6 +1,6 @@
-# Jarvis — asistente personal con IA
+# Lorian — asistente personal con IA
 
-Asistente personal que conversa, pone alarmas y temporizadores, y busca información en internet. Usa Claude como cerebro.
+Asistente personal que conversa, pone alarmas y temporizadores, da el clima y busca información en internet. **Funciona gratis** usando la capa gratuita de Groq.
 
 Por ahora funciona por texto en la terminal. La voz y la interfaz vienen en próximas versiones.
 
@@ -12,12 +12,13 @@ jarvis/
 ├── requirements.txt         # Dependencias
 ├── .env.example             # Plantilla de configuración
 └── asistente/
-    ├── config.py            # Nombre, modelo, personalidad
-    ├── cerebro.py           # Conversa con Claude y usa las herramientas
+    ├── config.py            # Nombre, proveedor de IA, personalidad
+    ├── cerebro.py           # Conversa con la IA y usa las herramientas
     └── herramientas/
         ├── __init__.py      # Registro de herramientas
         ├── alarmas.py       # Alarmas y temporizadores
-        └── web.py           # Búsqueda web
+        ├── clima.py         # Clima con Open-Meteo (gratis)
+        └── web.py           # Búsqueda con DuckDuckGo (gratis)
 ```
 
 El cerebro no depende de la terminal: recibe texto y devuelve texto. Así, más adelante se le puede poner voz o una pantalla encima sin tocarlo.
@@ -25,7 +26,7 @@ El cerebro no depende de la terminal: recibe texto y devuelve texto. Así, más 
 ## Instalación
 
 1. Instala Python 3.9 o superior.
-2. Consigue una API key en [platform.claude.com](https://platform.claude.com) (sección API Keys).
+2. Crea una cuenta gratis en [console.groq.com](https://console.groq.com) y genera una API key en la sección API Keys.
 3. En la carpeta del proyecto:
 
 ```bash
@@ -38,7 +39,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-4. Copia `.env.example` como `.env` y pon tu API key ahí.
+4. Copia `.env.example` como `.env` y pega tu key en `GROQ_API_KEY`. Opcionalmente, pon tu ciudad y país para el clima.
 
 ## Uso
 
@@ -51,19 +52,33 @@ Ejemplos:
 - `pon una alarma a las 7:30 para ir al gimnasio`
 - `avísame en 10 minutos que saque la pizza`
 - `qué alarmas tengo?` / `cancela la de la pizza`
-- `cómo va a estar el clima mañana?`
+- `va a llover mañana?`
+- `qué noticias hay hoy de tecnología?`
 
 Comandos: `nuevo` reinicia la conversación, `salir` cierra el programa.
 
+## Cambiar de proveedor de IA
+
+En el `.env`, cambia `PROVEEDOR`:
+
+| Proveedor | Costo | Key |
+|-----------|-------|-----|
+| `groq` | Gratis con límites diarios | [console.groq.com](https://console.groq.com) |
+| `gemini` | Gratis con límites (usa tus datos para entrenar) | [aistudio.google.com](https://aistudio.google.com) |
+| `ollama` | Gratis, corre en tu PC | No necesita, pero sí [Ollama](https://ollama.com) instalado |
+
+Con `MODELO` puedes elegir otro modelo del proveedor.
+
 ## Agregar una herramienta
 
-1. Crea un archivo en `asistente/herramientas/` con sus funciones, `DEFINICIONES` y `FUNCIONES` (usa `alarmas.py` de ejemplo).
-2. Regístrala en `asistente/herramientas/__init__.py`.
+1. Crea un archivo en `asistente/herramientas/` con sus funciones, `DEFINICIONES` y `FUNCIONES` (usa `clima.py` de ejemplo).
+2. Agrégala a `MODULOS` en `asistente/herramientas/__init__.py`.
 
 ## Hoja de ruta
 
-- [x] Cerebro con Claude y búsqueda web
+- [x] Cerebro con IA gratuita
 - [x] Alarmas y temporizadores
+- [x] Clima y búsqueda web
 - [ ] Guardar alarmas al cerrar el programa
 - [ ] Voz (escuchar y hablar)
 - [ ] Palabra de activación

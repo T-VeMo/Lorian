@@ -75,35 +75,32 @@ def iniciar_vigilancia(al_sonar):
 
 # ─── Definiciones que ve Claude ───
 
+def _funcion(nombre, descripcion, propiedades=None, requeridos=None):
+    parametros = {"type": "object", "properties": propiedades or {}}
+    if requeridos:
+        parametros["required"] = requeridos
+    return {"type": "function", "function": {"name": nombre, "description": descripcion, "parameters": parametros}}
+
+
 DEFINICIONES = [
-    {
-        "name": "poner_alarma",
-        "description": "Programa una alarma a una hora exacta o un temporizador dentro de X minutos. "
-                       "Usa 'hora' para horas del reloj y 'en_minutos' para temporizadores. "
-                       "Para segundos u horas, conviértelos a minutos (ej: 30 segundos = 0.5).",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "hora": {"type": "string", "description": "Hora en formato 24h HH:MM, ej: '07:30'"},
-                "en_minutos": {"type": "number", "description": "Minutos desde ahora, ej: 15"},
-                "mensaje": {"type": "string", "description": "Motivo de la alarma, ej: 'Sacar la pizza'"},
-            },
+    _funcion(
+        "poner_alarma",
+        "Programa una alarma a una hora exacta o un temporizador dentro de X minutos. "
+        "Usa 'hora' para horas del reloj y 'en_minutos' para temporizadores. "
+        "Para segundos u horas, conviértelos a minutos (ej: 30 segundos = 0.5).",
+        {
+            "hora": {"type": "string", "description": "Hora en formato 24h HH:MM, ej: '07:30'"},
+            "en_minutos": {"type": "number", "description": "Minutos desde ahora, ej: 15"},
+            "mensaje": {"type": "string", "description": "Motivo de la alarma, ej: 'Sacar la pizza'"},
         },
-    },
-    {
-        "name": "listar_alarmas",
-        "description": "Muestra todas las alarmas y temporizadores activos.",
-        "input_schema": {"type": "object", "properties": {}},
-    },
-    {
-        "name": "cancelar_alarma",
-        "description": "Cancela una alarma por su número. Si no sabes el número, primero lista las alarmas.",
-        "input_schema": {
-            "type": "object",
-            "properties": {"id_alarma": {"type": "integer"}},
-            "required": ["id_alarma"],
-        },
-    },
+    ),
+    _funcion("listar_alarmas", "Muestra todas las alarmas y temporizadores activos."),
+    _funcion(
+        "cancelar_alarma",
+        "Cancela una alarma por su número. Si no sabes el número, primero lista las alarmas.",
+        {"id_alarma": {"type": "integer"}},
+        ["id_alarma"],
+    ),
 ]
 
 FUNCIONES = {
