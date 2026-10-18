@@ -9,6 +9,8 @@ Por ahora funciona por texto en la terminal. La voz y la interfaz vienen en pró
 ```
 jarvis/
 ├── main.py                  # Punto de entrada (interfaz de terminal)
+├── datos
+    └──historial.json        # Donde se guardan las conversaciones 
 ├── requirements.txt         # Dependencias
 ├── .env.example             # Plantilla de configuración
 └── asistente/
@@ -55,7 +57,9 @@ Ejemplos:
 - `va a llover mañana?`
 - `qué noticias hay hoy de tecnología?`
 
-Comandos: `nuevo` reinicia la conversación, `salir` cierra el programa.
+Comandos: `nuevo` reinicia la conversación, ---> ya no se usa
+
+`salir` cierra el programa.
 
 ## Cambiar de proveedor de IA
 
@@ -79,6 +83,7 @@ Con `MODELO` puedes elegir otro modelo del proveedor.
 - [x] Cerebro con IA gratuita
 - [x] Alarmas y temporizadores
 - [x] Clima y búsqueda web
+- [ ] Guardar conversaciones al cerrar el programa
 - [ ] Guardar alarmas al cerrar el programa
 - [ ] Voz (escuchar y hablar)
 - [ ] Palabra de activación
