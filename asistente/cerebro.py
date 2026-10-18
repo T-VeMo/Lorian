@@ -3,27 +3,51 @@
 No sabe nada de terminales, voz ni pantallas: recibe texto y devuelve texto.
 Funciona con cualquier proveedor compatible con el formato de OpenAI (Groq, Gemini, Ollama...).
 """
+import os
 
 import json
+
 from datetime import datetime
 
 from openai import OpenAI
 
 from asistente import config, herramientas
 
+
 DIAS = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
 MAX_MENSAJES = 30          # Historial máximo, para no gastar la cuota gratuita
 MAX_PASOS_HERRAMIENTAS = 6  # Evita bucles infinitos si el modelo se confunde
 
 
+
 class Cerebro:
     def __init__(self, al_usar_herramienta=None):
         self.cliente = OpenAI(base_url=config.URL_API, api_key=config.API_KEY, timeout=20, max_retries=1)
-        self.historial = []
+        self.historial = self._cargar_historial()
         self.al_usar_herramienta = al_usar_herramienta  # Aviso opcional, ej: mostrar "[buscando...]"
 
-    def reiniciar(self):
-        self.historial.clear()
+    def _cargar_historial(self):
+        try:
+            with open("datos/historial.json", "r", encoding="utf-8") as f:
+                historial = json.load(f)
+        except (json.JSONDecodeError, FileNotFoundError):
+            historial = []
+        return historial
+
+    def _guardar_historial(self):
+        try:
+            os.makedirs("datos", exist_ok=True)
+            with open("datos/historial.json", "w", encoding="utf-8") as f:
+                json.dump(self.historial, f, indent=2, ensure_ascii=False)
+        except PermissionError:
+            print(f"No se pudo guardar el historial")
+        except OSError as o:
+            print(f"No se pudo crear el directorio de historial: {o}")
+        else:
+            return True
+        
+    #def reiniciar(self):
+       # self._cargar_historial()
 
     def _instrucciones(self):
         ahora = datetime.now()
@@ -45,6 +69,7 @@ class Cerebro:
             del self.historial[largo_previo:]  # Deshace el turno fallido
             raise
         self._recortar_historial()
+        self._guardar_historial()
         return respuesta
 
     def _bucle(self):
