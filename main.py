@@ -28,7 +28,7 @@ def main():
     alarmas.iniciar_vigilancia(sonar_alarma)
 
     nombre = config.NOMBRE
-    print(f"{nombre} en línea ({config.PROVEEDOR}: {config.MODELO}). Escribe 'salir' para terminar o 'nuevo' para empezar otra conversación.\n")
+    print(f"{nombre} en línea \n")
 
     while True:
         try:
@@ -41,10 +41,7 @@ def main():
             continue
         if texto.lower() in ("salir", "exit", "chao"):
             break
-        if texto.lower() == "nuevo":
-            cerebro.reiniciar()
-            print("(Conversación reiniciada)\n")
-            continue
+        
 
         try:
             print(f"{nombre}: {cerebro.pensar(texto)}\n")
