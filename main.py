@@ -41,7 +41,10 @@ def main():
             continue
         if texto.lower() in ("salir", "exit", "chao"):
             break
-        
+        #if texto.lower() == "nuevo":
+        #    cerebro.reiniciar()
+        #    print("(Conversación reiniciada)\n")
+        #    continue
 
         try:
             print(f"{nombre}: {cerebro.pensar(texto)}\n")

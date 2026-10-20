@@ -83,7 +83,7 @@ Con `MODELO` puedes elegir otro modelo del proveedor.
 - [x] Cerebro con IA gratuita
 - [x] Alarmas y temporizadores
 - [x] Clima y búsqueda web
-- [ ] Guardar conversaciones al cerrar el programa
+- [x] Guardar conversaciones al cerrar el programa
 - [ ] Guardar alarmas al cerrar el programa
 - [ ] Voz (escuchar y hablar)
 - [ ] Palabra de activación
