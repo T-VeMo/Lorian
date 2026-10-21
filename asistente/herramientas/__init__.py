@@ -6,9 +6,9 @@ Para agregar una herramienta nueva:
   2. Agrégala a la lista MODULOS de abajo.
 """
 
-from . import alarmas, clima, web
+from . import alarmas, clima, web, navegador
 
-MODULOS = [alarmas, clima, web]
+MODULOS = [alarmas, clima, web, navegador]
 
 DEFINICIONES = [d for m in MODULOS for d in m.DEFINICIONES]
 FUNCIONES = {nombre: f for m in MODULOS for nombre, f in m.FUNCIONES.items()}
