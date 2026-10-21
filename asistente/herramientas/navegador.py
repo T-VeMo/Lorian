@@ -1,18 +1,24 @@
-"""Abre el navegador del usuario para realizar búsquedas en Google."""
+"""Abre el navegador del usuario para realizar búsquedas en un sitio web."""
 
 import webbrowser
 from urllib.parse import quote_plus
 
+PAGINAS = {
+    "google": "https://www.google.com/search?q={}", 
+    "youtube": "https://www.youtube.com/results?search_query={}"
+}
 
-def buscar_en_google(consulta):
+
+def navegador(consulta, pagina="google"):
+    if pagina not in PAGINAS:
+        return f"No se reconoce la página '{pagina}'. Páginas disponibles: {', '.join(PAGINAS.keys())}."
     try:
         busqueda = quote_plus(consulta)
-        url = f"https://www.google.com/search?q={busqueda}"
+        url = PAGINAS[pagina].format(busqueda)
 
         if webbrowser.open(url):
-            return f"Abriendo búsqueda en Google para: {consulta}"
-        else:
-            return f"No se pudo abrir el navegador para la búsqueda: {consulta}"
+            return f"Abriendo búsqueda en {pagina} para: {consulta}"
+        return f"No se pudo abrir el navegador para la búsqueda: {consulta}"
         
     except Exception as e:
         return f"No se pudo abrir el navegador ({e})."
@@ -22,13 +28,15 @@ DEFINICIONES = [
     {
         "type": "function",
         "function": {
-            "name": "buscar_en_google",
-            "description": "Abre una búsqueda en Google en el navegador del usuario. Úsala solo cuando el usuario pida explícitamente abrir el navegador o ver resultados en Google."
-                           "Para responder preguntas, usa buscar_web.",
+            "name": "navegador",
+            "description": "Abre una búsqueda en la página especificada por el usuario en el navegador del usuario. " 
+                            "Úsala solo cuando el usuario pida explícitamente abrir el navegador o ver resultados en la pagina que el usuario decida. " 
+                            "Para responder preguntas, usa buscar_web.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "consulta": {"type": "string", "description": "Lo que quieres buscar en Google."},
+                    "consulta": {"type": "string", "description": "Lo que quieres buscar en la página especificada."},
+                    "pagina": {"type": "string", "description": "Página donde buscar.", "default": "google", "enum": list(PAGINAS.keys())},
                 },
                 "required": ["consulta"],
             },
@@ -36,4 +44,4 @@ DEFINICIONES = [
     },
 ]
 
-FUNCIONES = {"buscar_en_google": buscar_en_google}
+FUNCIONES = {"navegador": navegador}

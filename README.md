@@ -20,6 +20,7 @@ jarvis/
         ├── __init__.py      # Registro de herramientas
         ├── alarmas.py       # Alarmas y temporizadores
         ├── clima.py         # Clima con Open-Meteo (gratis)
+        ├── navegador.py     # Abre el navegador para realizar busquedas
         └── web.py           # Búsqueda con DuckDuckGo (gratis)
 ```
 
