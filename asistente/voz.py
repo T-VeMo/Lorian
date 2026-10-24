@@ -26,7 +26,6 @@ def _generar_audio(texto):
         os.makedirs("datos", exist_ok=True)
         with open(RUTA_AUDIO, "wb") as f: 
             f.write(response.content)
-
             return RUTA_AUDIO
     except requests.RequestException as e:
         print(f"Error al llamar a la API de voz: {e}")
@@ -37,11 +36,14 @@ def _reproducir(ruta):
         pygame.mixer.init()
         pygame.mixer.music.load(ruta)
         pygame.mixer.music.play()
+        reloj = pygame.time.Clock()
         while pygame.mixer.music.get_busy():
-            pygame.time.Clock().tick(10)
-        pygame.mixer.music.unload()
+            reloj.tick(10)
     except Exception as e:
         print(f"Error al reproducir el audio: {e}")
+    finally:
+        if pygame.mixer.get_init():
+            pygame.mixer.music.unload()
 
 def hablar(texto):
     ruta = _generar_audio(texto)
