@@ -2,3 +2,4 @@ openai>=1.40
 python-dotenv>=1.0
 ddgs>=9.0
 requests>=2.31
+pygame-ce>=2.5.8

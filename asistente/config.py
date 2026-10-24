@@ -38,6 +38,9 @@ VARIABLE_KEY = _p["variable_key"]
 API_KEY = os.getenv(VARIABLE_KEY) if VARIABLE_KEY else "ollama"
 MODELO = os.getenv("MODELO") or _p["modelo"]
 
+FISH_API_KEY = os.getenv("FISH_API_KEY")
+VOZ_ID = os.getenv("VOZ_ID")
+
 # ─── Ubicación (opcional) ───
 # Se usa como ciudad por defecto para el clima y para localizar las búsquedas.
 CIUDAD = os.getenv("CIUDAD", "Quilpue")
