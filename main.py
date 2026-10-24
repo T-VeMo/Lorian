@@ -8,6 +8,7 @@ import openai
 from asistente import config
 from asistente.cerebro import Cerebro
 from asistente.herramientas import alarmas
+from asistente.voz import hablar
 
 
 def sonar_alarma(mensaje, hora):
@@ -47,7 +48,9 @@ def main():
         #    continue
 
         try:
-            print(f"{nombre}: {cerebro.pensar(texto)}\n")
+            respuesta = cerebro.pensar(texto)
+            print(f"{nombre}: {respuesta}\n")
+            hablar(respuesta)
         except openai.RateLimitError:
             print("(Llegaste al límite gratuito por ahora. Espera un momento y vuelve a intentar.)\n")
         except openai.APITimeoutError as e:
