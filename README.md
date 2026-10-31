@@ -7,7 +7,7 @@ Por ahora funciona por texto en la terminal. La voz y la interfaz vienen en pró
 ## Estructura
 
 ```
-jarvis/
+Lorian/
 ├── main.py                  # Punto de entrada (interfaz de terminal)
 ├── datos
     └──historial.json        # Donde se guardan las conversaciones 
@@ -58,9 +58,7 @@ Ejemplos:
 - `va a llover mañana?`
 - `qué noticias hay hoy de tecnología?`
 
-Comandos: `nuevo` reinicia la conversación, ---> ya no se usa
-
-`salir` cierra el programa.
+Comandos: `salir` cierra el programa.
 
 ## Cambiar de proveedor de IA
 
@@ -90,3 +88,22 @@ Con `MODELO` puedes elegir otro modelo del proveedor.
 - [ ] Palabra de activación
 - [ ] Interfaz en pantalla
 - [ ] Correr en un Android
+
+---
+
+## 🇬🇧 English summary
+
+**Lorian** is a personal AI assistant written in Python. It chats in natural language and uses **tool calling** to act on requests: it sets alarms and timers, reports the weather (Open-Meteo), searches the web (DuckDuckGo), opens the browser and can answer out loud (text-to-speech).
+
+**Highlights**
+
+- Provider-agnostic AI layer: switch between **Groq**, **Google Gemini** or a local **Ollama** model from the `.env` file
+- Modular tools: each tool declares its JSON schema and handler, and is registered in one place
+- The "brain" is decoupled from the interface (text in, text out), so voice or a GUI can be added without touching it
+- Runs entirely on free tiers
+
+**Stack:** Python · OpenAI-compatible SDK · Groq / Gemini / Ollama · DuckDuckGo search · Open-Meteo · pygame (audio)
+
+**Quick start:** `pip install -r requirements.txt`, copy `.env.example` to `.env`, add a free Groq API key and run `python main.py`.
+
+**Author:** Tomás Vega · [github.com/T-VeMo](https://github.com/T-VeMo)
